@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Filtrer par pays</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 20px;
+    }
+    select {
+      padding: 8px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .personne {
+      display: flex;
+      align-items: center;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin-bottom: 15px;
+      gap: 15px;
+    }
+    .personne img {
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+    }
+    .info {
+      flex-grow: 1;
+    }
+    .contact {
+      display: none;
+      color: #333;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h5>Question 2 </h5>
+  <h2>Filtrer les personnes par pays</h2>
+
+  <!-- Sélecteur du pays -->
+  <select id="filtrePays">
+    <option value="tous">-- Tous les pays --</option>
+  </select>
+
+  <div id="liste"></div>
+
+  <script>
+    let personnes = [];
+
+    // Charger le JSON
+    fetch('personnes.json')
+      .then(res => res.json())
+      .then(data => {
+        personnes = data;
+        remplirListe(personnes);
+        remplirFiltre(personnes);
+      });
+
+    // Remplir la liste
+    function remplirListe(listePersonnes) {
+      const liste = document.getElementById('liste');
+      liste.innerHTML = '';
+
+      listePersonnes.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'personne';
+        div.dataset.pays = p.location.country;
+
+        div.innerHTML = `
+          <img src="${p.picture.large}" alt="${p.name.first}">
+          <div class="info">
+            <p><b>Nom:</b> ${p.name.last}</p>
+            <p><b>Prénom:</b> ${p.name.first}</p>
+            <p><b>Pays:</b> ${p.location.country}</p>
+            <p>
+              <b>Contact:</b>
+              <span class="contact">Tel: ${p.phone}, Email: ${p.email}</span>
+              <button onclick="toggleContact(this)">Afficher</button>
+            </p>
+          </div>
+        `;
+        liste.appendChild(div);
+      });
+    }
+
+    // Remplir le select avec les pays
+    function remplirFiltre(data) {
+      const select = document.getElementById('filtrePays');
+      const pays = [...new Set(data.map(p => p.location.country))]; // unique
+      pays.sort().forEach(p => {
+        const option = document.createElement('option');
+        option.value = p;
+        option.textContent = p;
+        select.appendChild(option);
+      });
+    }
+
+    // Quand المستخدم يختار بلد
+    document.getElementById('filtrePays').addEventListener('change', e => {
+      const valeur = e.target.value;
+      if (valeur === 'tous') {
+        remplirListe(personnes);
+      } else {
+        const filtre = personnes.filter(p => p.location.country === valeur);
+        remplirListe(filtre);
+      }
+    });
+
+    // Fonction afficher/cacher contact
+    function toggleContact(btn) {
+      const contact = btn.previousElementSibling;
+      if (contact.style.display === "none" || contact.style.display === "") {
+        contact.style.display = "inline";
+        btn.textContent = "Cacher";
+      } else {
+        contact.style.display = "none";
+        btn.textContent = "Afficher";
+      }
+    }
+  </script>
+
+</body>
+</html>

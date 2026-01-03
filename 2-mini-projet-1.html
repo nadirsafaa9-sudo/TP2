@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des personnes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 20px;
+    }
+    .personne {
+      display: flex;
+      align-items: center;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin-bottom: 15px;
+      gap: 15px;
+    }
+    .personne img {
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+    }
+    .info {
+      flex-grow: 1;
+    }
+    .contact {
+      display: none;
+      color: #333;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+<h5>Question 1</h5>
+  <h2>Liste des personnes</h2>
+  <div id="liste"></div>
+
+  <script>
+    // Charger le fichier JSON
+    fetch('personnes.json')
+      .then(res => res.json())
+      .then(data => {
+        const liste = document.getElementById('liste');
+        data.forEach(p => {
+          // إنشاء العنصر لكل شخص
+          const div = document.createElement('div');
+          div.className = 'personne';
+          div.dataset.pays = p.location.country;
+
+          div.innerHTML = `
+            <img src="${p.picture.large}" alt="${p.name.first}">
+            <div class="info">
+              <p><b>Nom:</b> ${p.name.last}</p>
+              <p><b>Prénom:</b> ${p.name.first}</p>
+              <p><b>Pays:</b> ${p.location.country}</p>
+              <p>
+                <b>Contact:</b>
+                <span class="contact">Tel: ${p.phone}, Email: ${p.email}</span>
+                <button onclick="toggleContact(this)">Afficher</button>
+              </p>
+            </div>
+          `;
+          liste.appendChild(div);
+        });
+      })
+      .catch(err => console.error('Erreur de chargement JSON:', err));
+
+    // Fonction pour afficher/cacher le contact
+    function toggleContact(btn) {
+      const contact = btn.previousElementSibling;
+      if (contact.style.display === "none" || contact.style.display === "") {
+        contact.style.display = "inline";
+        btn.textContent = "Cacher";
+      } else {
+        contact.style.display = "none";
+        btn.textContent = "Afficher";
+      }
+    }
+  </script>
+
+</body>
+</html>
